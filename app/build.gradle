@@ -25,6 +25,11 @@ android {
         sourceCompatibility "1.8"
         targetCompatibility "1.8"
     }
+
+    dataBinding{
+        enabled = true
+    }
+
 }
 
 dependencies {
@@ -53,6 +58,11 @@ dependencies {
 
     //fastjson解析
     api 'com.alibaba:fastjson:1.2.59'
+
+    //图片加载
+    api 'com.github.bumptech.glide:glide:4.9.0'
+    api 'jp.wasabeef:glide-transformations:4.0.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.9.0'
 
     implementation project(path: ':libnavannotation')
     implementation project(path: ':libnetwork')
