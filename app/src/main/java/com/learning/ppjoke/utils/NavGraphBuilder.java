@@ -10,6 +10,7 @@ import androidx.navigation.NavGraphNavigator;
 import androidx.navigation.NavigatorProvider;
 import androidx.navigation.fragment.FragmentNavigator;
 
+import com.learning.libcommon.globals.AppGlobal;
 import com.learning.ppjoke.model.Destination;
 import com.learning.ppjoke.navigator.FixFragmentNavigator;
 
