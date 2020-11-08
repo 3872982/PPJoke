@@ -12,28 +12,67 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.paging.DataSource;
+import androidx.paging.ItemKeyedDataSource;
+import androidx.paging.PagedList;
+import androidx.paging.PagedListAdapter;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.learning.libnavannotation.FragmentDestination;
+import com.learning.ppjoke.MutableDataSource;
 import com.learning.ppjoke.R;
+import com.learning.ppjoke.model.Feed;
+import com.learning.ppjoke.ui.AbsListFragment;
+import com.scwang.smartrefresh.layout.api.RefreshLayout;
+
+import java.util.List;
 
 @FragmentDestination(pageUrl = "main/tabs/home", asStart = true)
-public class HomeFragment extends Fragment {
+public class HomeFragment extends AbsListFragment<Feed,HomeViewModel> {
 
-    private HomeViewModel homeViewModel;
-
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
-        Log.i("HomeFragment","进入OnCreateView");
-        homeViewModel =
-                ViewModelProviders.of(this).get(HomeViewModel.class);
-        View root = inflater.inflate(R.layout.fragment_home, container, false);
-        final TextView textView = root.findViewById(R.id.text_home);
-        homeViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        mViewModel.getCacheLiveData().observe(getViewLifecycleOwner(), new Observer<PagedList<Feed>>() {
             @Override
-            public void onChanged(@Nullable String s) {
-                textView.setText(s);
+            public void onChanged(PagedList<Feed> feeds) {
+                mAdapter.submitList(feeds);
             }
         });
-        return root;
+    }
+
+    @Override
+    public PagedListAdapter getAdapter() {
+        String feedType = getArguments() == null ? "all" : getArguments().getString("feedType");
+        return new FeedAdapter(getContext(),feedType);
+    }
+
+    @Override
+    public void onLoadMore(@NonNull RefreshLayout refreshLayout) {
+        Feed feed = mAdapter.getCurrentList().get(mAdapter.getItemCount()-1);
+        mViewModel.loadAfter(feed.id, new ItemKeyedDataSource.LoadCallback<Feed>() {
+
+            @Override
+            public void onResult(@NonNull List<Feed> data) {
+                if(data !=null && data.size()>0){
+                    PagedList.Config config = mAdapter.getCurrentList().getConfig();
+                    MutableDataSource<Integer,Feed> mutableDataSource = new MutableDataSource<>();
+                    mutableDataSource.sourceData.addAll(data);
+                    PagedList<Feed> feeds = mutableDataSource.buildPagedList(config);
+                    mViewModel.getPageData().observe(getViewLifecycleOwner(), new Observer<PagedList<Feed>>() {
+                        @Override
+                        public void onChanged(PagedList<Feed> feeds) {
+                            submitList(feeds);
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onRefresh(@NonNull RefreshLayout refreshLayout) {
+        //invalidate 之后Paging会重新创建一个DataSource 重新调用它的loadInitial方法加载初始化数据
+        //详见：LivePagedListBuilder#compute方法
+        mViewModel.getSource().invalidate();
     }
 }

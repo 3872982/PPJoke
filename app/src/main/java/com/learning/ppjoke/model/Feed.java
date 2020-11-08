@@ -1,9 +1,12 @@
 package com.learning.ppjoke.model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class Feed implements Serializable {
 
+    public static final int TYPE_IMAGE_TEXT = 1;//图文
+    public static final int TYPE_VIDEO = 2;//视频
     /**
      * activityIcon : https://sf1-nhcdn-tos.pstatp.com/obj/p1056/88c5ea2b90134313b99cf2f9a87e9ca1
      * activityText : 专业团队
@@ -27,7 +30,7 @@ public class Feed implements Serializable {
     public User author;
     public long authorId;
     public String cover;
-    public int createTime;
+    public long createTime;
     public double duration;
     public String feeds_text;
     public int height;
@@ -39,5 +42,31 @@ public class Feed implements Serializable {
     public int width;
     public Comment topComment;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Feed feed = (Feed) o;
+        return authorId == feed.authorId &&
+                createTime == feed.createTime &&
+                Double.compare(feed.duration, duration) == 0 &&
+                height == feed.height &&
+                id == feed.id &&
+                itemId == feed.itemId &&
+                itemType == feed.itemType &&
+                width == feed.width &&
+                Objects.equals(activityIcon, feed.activityIcon) &&
+                Objects.equals(activityText, feed.activityText) &&
+                Objects.equals(author, feed.author) &&
+                Objects.equals(cover, feed.cover) &&
+                Objects.equals(feeds_text, feed.feeds_text) &&
+                Objects.equals(ugc, feed.ugc) &&
+                Objects.equals(url, feed.url) &&
+                Objects.equals(topComment, feed.topComment);
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(activityIcon, activityText, author, authorId, cover, createTime, duration, feeds_text, height, id, itemId, itemType, ugc, url, width, topComment);
+    }
 }

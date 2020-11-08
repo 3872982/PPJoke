@@ -1,6 +1,7 @@
 package com.learning.ppjoke.model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * 神评
@@ -40,4 +41,32 @@ public class Comment implements Serializable {
     public int width;
     public String imageUrl;
     public String videoUrl;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Comment comment = (Comment) o;
+        return commentCount == comment.commentCount &&
+                commentId == comment.commentId &&
+                commentType == comment.commentType &&
+                createTime == comment.createTime &&
+                hasLiked == comment.hasLiked &&
+                height == comment.height &&
+                id == comment.id &&
+                itemId == comment.itemId &&
+                likeCount == comment.likeCount &&
+                userId == comment.userId &&
+                width == comment.width &&
+                Objects.equals(author, comment.author) &&
+                Objects.equals(commentText, comment.commentText) &&
+                Objects.equals(ugc, comment.ugc) &&
+                Objects.equals(imageUrl, comment.imageUrl) &&
+                Objects.equals(videoUrl, comment.videoUrl);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(author, commentCount, commentId, commentText, commentType, createTime, hasLiked, height, id, itemId, likeCount, ugc, userId, width, imageUrl, videoUrl);
+    }
 }

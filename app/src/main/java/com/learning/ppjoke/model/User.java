@@ -1,6 +1,7 @@
 package com.learning.ppjoke.model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class User implements Serializable {
 
@@ -27,7 +28,7 @@ public class User implements Serializable {
     public String avatar;
     public int commentCount;
     public String description;
-    public int expires_time;
+    public long expires_time;
     public int favoriteCount;
     public int feedCount;
     public int followCount;
@@ -40,4 +41,32 @@ public class User implements Serializable {
     public int score;
     public int topCommentCount;
     public long userId;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return commentCount == user.commentCount &&
+                expires_time == user.expires_time &&
+                favoriteCount == user.favoriteCount &&
+                feedCount == user.feedCount &&
+                followCount == user.followCount &&
+                followerCount == user.followerCount &&
+                hasFollow == user.hasFollow &&
+                historyCount == user.historyCount &&
+                id == user.id &&
+                likeCount == user.likeCount &&
+                score == user.score &&
+                topCommentCount == user.topCommentCount &&
+                userId == user.userId &&
+                Objects.equals(avatar, user.avatar) &&
+                Objects.equals(description, user.description) &&
+                Objects.equals(name, user.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(avatar, commentCount, description, expires_time, favoriteCount, feedCount, followCount, followerCount, hasFollow, historyCount, id, likeCount, name, score, topCommentCount, userId);
+    }
 }

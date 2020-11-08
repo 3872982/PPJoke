@@ -11,26 +11,34 @@
         <import type="com.learning.ppjoke.model.User"/>
     </data>
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_40"
         android:orientation="horizontal"
         android:paddingLeft="@dimen/dp_16"
         android:paddingRight="@dimen/dp_16"
-        android:layout_marginBottom="@dimen/dp_10">
+        android:layout_marginBottom="@dimen/dp_10"
+        android:layout_marginTop="@dimen/dp_10">
 
         <com.learning.ppjoke.view.PPImageView
             android:id="@+id/iv_avatar"
             android:layout_width="@dimen/dp_40"
             android:layout_height="@dimen/dp_40"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
             app:imageUrl="@{user.avatar}"
             app:isCircle="@{true}"
             tools:src="@mipmap/ic_launcher_round" />
 
         <TextView
+            android:id="@+id/tv_author_name"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginLeft="@dimen/dp_10"
+            app:layout_constraintLeft_toRightOf="@id/iv_avatar"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/tv_create_time"
             android:textSize="@dimen/sp_14"
             android:textColor="@color/color_333"
             android:maxLines="3"
@@ -39,5 +47,18 @@
             android:text="@{user.name}"
             tools:text="这里是描述描述"
             android:gravity="center" />
-    </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_create_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/dp_10"
+            app:layout_constraintLeft_toRightOf="@id/iv_avatar"
+            app:layout_constraintTop_toBottomOf="@id/tv_author_name"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:textColor="@color/color_999"
+            android:textSize="@dimen/sp_12"
+            android:visibility="gone"
+            tools:text="1小时前"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

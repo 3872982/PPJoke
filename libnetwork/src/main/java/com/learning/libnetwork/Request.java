@@ -7,6 +7,7 @@ import android.util.Log;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.arch.core.executor.ArchTaskExecutor;
+import androidx.room.util.StringUtil;
 
 import com.learning.libnetwork.cache.CacheManager;
 
@@ -178,56 +179,98 @@ public abstract class Request<T,R extends Request> implements Cloneable {
                 Response response = call.execute();
                 apiResponse = parseResponse(response, null);
             } catch (IOException e) {
-                //e.printStackTrace();
-                apiResponse = new ApiResponse<>();
-                apiResponse.success = false;
-                apiResponse.status = 0;
-                apiResponse.message = e.getMessage();
-            } finally {
-                return apiResponse;
+                e.printStackTrace();
+                if(apiResponse == null){
+                    apiResponse = new ApiResponse<>();
+                    //apiResponse.success = false;
+                    //apiResponse.status = 0;
+                    apiResponse.message = e.getMessage();
+                }
             }
+            return apiResponse;
         }
     }
 
-    protected ApiResponse<T> parseResponse(Response response, JsonCallBack<T> callBack){
-        ApiResponse<T> apiResponse = new ApiResponse<>();
-        String message = null;
-        boolean isSuccess = response.isSuccessful();
-        int status = response.code();
 
+    private ApiResponse<T> parseResponse(Response response, JsonCallBack<T> callback) {
+        String message = null;
+        int status = response.code();
+        boolean success = response.isSuccessful();
+        ApiResponse<T> result = new ApiResponse<>();
+        Convert convert = ApiService.sConvert;
         try {
             String content = response.body().string();
-            if(isSuccess){
-                Convert convert = ApiService.sConvert;
-                //成功的情况下，content为我们所请求的json结果主体，需要去转换Json
-                if(callBack != null) {
-                    ParameterizedType type = (ParameterizedType) callBack.getClass().getGenericSuperclass();
-                    Type arg = type.getActualTypeArguments()[0];
-                    apiResponse.body = (T) convert.convert(content,arg);
-                }else if(mType != null){
-                    apiResponse.body = (T) convert.convert(content, mType);
-                }else{
+            if (success) {
+                if (callback != null) {
+                    ParameterizedType type = (ParameterizedType) callback.getClass().getGenericSuperclass();
+                    Type argument = type.getActualTypeArguments()[0];
+                    result.body = (T) convert.convert(content, argument);
+                } else if (mType != null) {
+                    result.body = (T) convert.convert(content, mType);
+                }
+//                } else if (mClaz != null) {
+//                    result.body = (T) convert.convert(content, mClaz);
+//                }
+                else {
                     Log.e("request", "parseResponse: 无法解析 ");
                 }
-            }else{
+            } else {
                 message = content;
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             message = e.getMessage();
+            success = false;
             status = 0;
-            isSuccess = false;
         }
 
-        apiResponse.success = isSuccess;
-        apiResponse.status = status;
-        apiResponse.message = message;
+        result.success = success;
+        result.status = status;
+        result.message = message;
 
-        if(mCacheStrategy != NET_ONLY && apiResponse.success && apiResponse.body != null && apiResponse.body instanceof Serializable){
-            saveCache(apiResponse.body);
+        if (mCacheStrategy != NET_ONLY && result.success && result.body != null && result.body instanceof Serializable) {
+            saveCache(result.body);
         }
-
-        return apiResponse;
+        return result;
     }
+//    protected ApiResponse<T> parseResponse(Response response, JsonCallBack<T> callBack){
+//        ApiResponse<T> apiResponse = new ApiResponse<>();
+//        String message = null;
+//        boolean isSuccess = response.isSuccessful();
+//        int status = response.code();
+//        Convert convert = ApiService.sConvert;
+//        try {
+//            String content = response.body().string();
+//            if(isSuccess){
+//
+//                //成功的情况下，content为我们所请求的json结果主体，需要去转换Json
+//                if(callBack != null) {
+//                    ParameterizedType type = (ParameterizedType) callBack.getClass().getGenericSuperclass();
+//                    Type arg = type.getActualTypeArguments()[0];
+//                    apiResponse.body = (T) convert.convert(content,arg);
+//                }else if(mType != null){
+//                    apiResponse.body = (T) convert.convert(content, mType);
+//                }else{
+//                    Log.e("request", "parseResponse: 无法解析 ");
+//                }
+//            }else{
+//                message = content;
+//            }
+//        } catch (IOException e) {
+//            message = e.getMessage();
+//            status = 0;
+//            isSuccess = false;
+//        }
+//
+//        apiResponse.success = isSuccess;
+//        apiResponse.status = status;
+//        apiResponse.message = message;
+//
+//        if(mCacheStrategy != NET_ONLY && apiResponse.success && apiResponse.body != null && apiResponse.body instanceof Serializable){
+//            saveCache(apiResponse.body);
+//        }
+//
+//        return apiResponse;
+//    }
 
     protected abstract okhttp3.Request generateRequest(okhttp3.Request.Builder builder);
 
@@ -238,10 +281,12 @@ public abstract class Request<T,R extends Request> implements Cloneable {
     }
 
     private ApiResponse<T> readCache(){
-        ApiResponse<T> apiResponse = null;
+        String key = TextUtils.isEmpty(mCacheKey)?generateCacheKey():mCacheKey;
+
+        ApiResponse<T> apiResponse = new ApiResponse<>();
         //to do...读取本地数据库room
-        T cache = (T) CacheManager.getCache(mCacheKey);
-        apiResponse.body = cache;
+        Object cache = CacheManager.getCache(key);
+        apiResponse.body = (T) cache;
         apiResponse.success = true;
         apiResponse.message = "缓存读取成功";
         apiResponse.status = 304;
@@ -249,7 +294,7 @@ public abstract class Request<T,R extends Request> implements Cloneable {
     }
 
     private void saveCache(T body){
-        String key = TextUtils.isEmpty(mCacheKey) ? mCacheKey : generateCacheKey();
+        String key = TextUtils.isEmpty(mCacheKey) ? generateCacheKey():mCacheKey;
         //to do...保存本地数据库room
         CacheManager.save(key,body);
     }
@@ -261,7 +306,7 @@ public abstract class Request<T,R extends Request> implements Cloneable {
 
     @NonNull
     @Override
-    protected Request clone() throws CloneNotSupportedException {
+    public Request clone() throws CloneNotSupportedException {
         return (Request<T,R>) super.clone();
     }
 }

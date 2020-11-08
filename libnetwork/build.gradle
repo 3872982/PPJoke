@@ -41,7 +41,8 @@ dependencies {
     annotationProcessor "android.arch.lifecycle:compiler:1.1.1"
 
     //fastjson解析
-    implementation 'com.alibaba:fastjson:1.2.59'
+    //implementation 'com.alibaba:fastjson:1.2.59'
+    api 'com.alibaba:fastjson:1.2.75'
 
 //    implementation 'androidx.arch.core:core-runtime:2.1.0@aar'
 

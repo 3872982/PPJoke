@@ -11,6 +11,7 @@
         <import type="com.learning.ppjoke.model.Comment"/>
         <import type="android.text.TextUtils"/>
         <import type="android.view.View"/>
+        <import type="com.learning.ppjoke.utils.StringConvert"/>
     </data>
 
     <FrameLayout
@@ -21,6 +22,7 @@
         android:paddingLeft="@dimen/dp_10"
         android:paddingRight="@dimen/dp_10"
         android:paddingBottom="@dimen/dp_10"
+        android:visibility="@{comment==null?View.GONE:View.VISIBLE}"
         android:background="@color/color_gray2">
 
         <ImageView
@@ -56,6 +58,8 @@
                     android:textColor="@color/color_3d3"
                     android:gravity="center_vertical"
                     android:layout_marginLeft="@dimen/dp_10"
+                    android:text="@{comment.author.name}"
+                    android:visibility="@{TextUtils.isEmpty(comment.author.name)?View.GONE:View.VISIBLE}"
                     tools:text="神器的皮皮虾"/>
 
                 <Space
@@ -67,7 +71,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:textSize="@dimen/sp_12"
-                    android:textColor="@color/color_3d3"
+                    android:text="@{comment.ugc.likeCount>0?StringConvert.convertFeedUgc(comment.ugc.likeCount):null}"
+                    android:textColor="@{comment.hasLiked?@color/color_theme:@color/color_3d3}"
                     android:gravity="center_vertical"
                     tools:text="12.2万"/>
                 
@@ -84,6 +89,8 @@
                 android:maxLines="2"
                 android:ellipsize="end"
                 android:textSize="@dimen/sp_14"
+                android:text="@{comment.commentText}"
+                android:visibility="@{TextUtils.isEmpty(comment.commentText)?View.GONE:View.VISIBLE}"
                 android:textColor="@color/color_3d3"
                 android:layout_marginTop="@dimen/dp_10"
                 android:layout_marginRight="@dimen/dp_36"
@@ -92,7 +99,8 @@
             <FrameLayout
                 android:layout_width="@dimen/dp_80"
                 android:layout_height="@dimen/dp_80"
-                android:layout_marginTop="@dimen/dp_10">
+                android:layout_marginTop="@dimen/dp_10"
+                android:visibility="@{TextUtils.isEmpty(comment.imageUrl)?View.GONE:View.VISIBLE}">
                 <com.learning.ppjoke.view.PPImageView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
